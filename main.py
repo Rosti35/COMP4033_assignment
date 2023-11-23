@@ -1,35 +1,21 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
-# Step 1: Create the universe of variables and fuzzy variables
-temperature = ctrl.Antecedent(np.arange(30, 42, 1), 'temperature')
-headache = ctrl.Antecedent(np.arange(0, 11, 1), 'headache')
-age = ctrl.Antecedent(np.arange(0, 131, 1), 'age')
-urgency = ctrl.Consequent(np.arange(0, 101, 1), 'urgency')
+"""
+Final Coursework for COMP4033 by Abinaya Maruthalingam and Rostislav Shepel
+"""
 
-# Step 2: Generate fuzzy membership functions
-temperature.automf(3)  # Simple three-point scale
-headache.automf(3)     # Simple three-point scale
-age.automf(3)          # Simple three-point scale
-urgency.automf(3)      # Simple three-point scale
+# Defining the Antecedent objects for the inputs
+age = ctrl.Antecedent(np.arange(0, 130, 1), 'age')
+# TODO: Check temperature range (start and stop) using literature
+temperature = ctrl.Antecedent(np.arange(30, 45, 0.1), 'temperature')
+severity_of_headache = ctrl.Antecedent(np.arange(0, 10, 1), 'headache')
 
-# Step 3: Define fuzzy rules
-rule1 = ctrl.Rule(temperature['poor'] | headache['poor'] | age['poor'], urgency['poor'])
-rule2 = ctrl.Rule(temperature['average'] | headache['average'], urgency['average'])
-rule3 = ctrl.Rule(temperature['good'] | headache['good'] | age['good'], urgency['good'])
+# Defining the Consequent object for the output
+urgency = ctrl.Consequent(np.arange(0, 100, 1), 'urgency')
 
-# Step 4: Control system and simulation
-urgency_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
-urgency_simulation = ctrl.ControlSystemSimulation(urgency_ctrl)
+# Generate membership functions
 
-# Example usage
-urgency_simulation.input['temperature'] = 39  # Example temperature
-urgency_simulation.input['headache'] = 5      # Example headache severity
-urgency_simulation.input['age'] = 40          # Example age
 
-# Step 5: Compute the result
-urgency_simulation.compute()
-print(f"Urgency Level: {urgency_simulation.output['urgency']}")
 
