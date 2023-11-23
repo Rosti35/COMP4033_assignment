@@ -1,0 +1,37 @@
+Scenario:
+    Assess patients when they come in to establish whether patient needs to be sent to hospital for emergency attention
+
+    Inputs:
+        - Temperature
+        - Headache
+        - Patient Age
+        All linguistic variables
+
+    Output:
+        - Urgency (degree of severity of condition)
+
+Inputs:
+    - Temperature (rated in degrees Celsius)
+        AVERAGE TEMPERATURE
+        https://medlineplus.gov/ency/article/001982.htm#:~:text=The%20average%20normal%20body%20temperature,
+        by%20an%20infection%20or%20illness.
+        36.1 to 37.2 is normal
+        - high is 37.8+ (fever, concerning) https://www.nhsinform.scot/illnesses-and-conditions/infections-and-poisoning/fever-in-adults/
+        - low is 35 - (concerning, hypothermia)
+
+        * Younger people have higher body temps, older people have lower body temps since the ability to regulate our
+        body temperature lessens as we age
+
+    - Severity of headache (rated subjectively 0 - 10)
+    - Age (scale of 0 to 130)
+
+* Use set of rules to produce the output i.e. how urgent medical treatment is for the patient
+
+Output:
+    - quantified in range of 0 to 100
+        - 0 : condition not at all urgent (no hospital)
+        - 100 : condition extremely urgent (hospital asap)
+
+** REMEMBER Not all variables are the same. Temperature has a normal range, above and below range can indicate issues.
+   Higher the rating for headache, the worse the condition.
+
