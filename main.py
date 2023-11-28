@@ -6,6 +6,13 @@ from mpl_toolkits.mplot3d import Axes3D
 
 """
 Final Coursework for COMP4033 by Abinaya Maruthalingam and Rostislav Shepel
+
+To run the file, ensure you are in the folder where the file is located. 
+Then type "python main.py" 
+Then you will be prompted to give your input for age, then temperature, then headache. 
+It will output the urgency level as a crisp value and as a set. 
+
+When viewed in, e.g., an IDE, you can also see the membership functions plotted and the output. 
 """
 
 # Defining the Antecedent objects for the inputs
