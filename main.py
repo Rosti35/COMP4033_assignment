@@ -73,12 +73,17 @@ rule3 = ctrl.Rule(antecedent=(age['elderly'] &
                   consequent=urgency['none'], label='elderly normal - none')
 # Young and Adolescent Children
 rule4 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
-                              (temperature['normal'] | temperature['slightly high'] & temperature['slightly low'])),
-                  consequent=urgency['none'], label='children normal - none')
+                              (temperature['normal'] | temperature['slightly high'])),
+                  consequent=urgency['none'], label='young normal - none')
+
+rule5 = ctrl.Rule(antecedent=(age['adolescent'] &
+                              temperature['slightly low'] &
+                              (headache['none'] | headache['mild'])),
+                  consequent=urgency['none'], label='adolescent normal - none')
 
 """Delayed Admittance - Minor Urgency (Age-Specific)"""
 # Elderly with normal temperature but moderate headache
-rule5 = ctrl.Rule(antecedent=(age['elderly'] &
+rule6 = ctrl.Rule(antecedent=(age['elderly'] &
                               (temperature['low'] | temperature['slightly low'] | temperature['normal'] |
                                temperature['slightly high']) &
                               headache['moderate']),
@@ -86,39 +91,45 @@ rule5 = ctrl.Rule(antecedent=(age['elderly'] &
 
 # Adults with delayed admittance - temp: low: possible hypothermia, high: possible fever, with a headache.
 # Can be remedied at home in the worst case too (moderate headache and high temp)
-rule6 = ctrl.Rule(antecedent=(age['adult'] &
+rule7 = ctrl.Rule(antecedent=(age['adult'] &
                               (temperature['slightly low'] | temperature['slightly high'] | temperature['high'])),
                   consequent=urgency['delayed'], label='adult slight temp - delayed')
 
 # Children with slight fever
-rule7 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
+rule8 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
                               temperature['high'] &
                               (headache['none'] | headache['mild'])),
                   consequent=urgency['delayed'], label='children slight fever - delayed')
 
+rule9 = ctrl.Rule(antecedent=(age['adolescent'] &
+                              temperature['slightly low'] &
+                              headache['moderate']),
+                  consequent=urgency['delayed'], label='adolescent low temp and headache - delayed')
+
 """Urgent Admittance - Major but not life threatening"""
 # Children with fever
-rule8 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
-                              temperature['high'] &
-                              (headache['moderate'])),
-                  consequent=urgency['urgent'], label='children fever - urgent')
+rule10 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
+                               temperature['high'] &
+                               (headache['moderate'])),
+                   consequent=urgency['urgent'], label='children fever - urgent')
 
 # Elderly - Outside the temperature range
-rule9 = ctrl.Rule(antecedent=(age['elderly'] &
-                              temperature['high'] &
-                              (headache['none'] | headache['mild'])),
-                  consequent=urgency['urgent'], label='elderly high temp - urgent')
+rule11 = ctrl.Rule(antecedent=(age['elderly'] &
+                               temperature['high'] &
+                               (headache['none'] | headache['mild'])),
+                   consequent=urgency['urgent'], label='elderly high temp - urgent')
 
 """Immediate Admittance"""
-rule10 = ctrl.Rule(antecedent=((age['adult'] | age['young'] | age['adolescent']) &
+rule12 = ctrl.Rule(antecedent=((age['adult'] | age['young'] | age['adolescent']) &
                                temperature['low']),
                    consequent=urgency['immediate'], label='children + adult hypothermia - immediate')
 
-rule11 = ctrl.Rule(antecedent=(age['elderly'] &
+rule13 = ctrl.Rule(antecedent=(age['elderly'] &
                                temperature['high'] &
                                headache['moderate']),
                    consequent=urgency['immediate'], label='elderly high temp and moderate headache - immediate')
-""" Default Rules 
+
+""" Default Rules - Not Used
 Used to debug control surface code
 
 default_rule_a = ctrl.Rule(antecedent=(~age['young'] & ~age['adolescent'] & ~age['adult'] & ~age['elderly']),
@@ -134,6 +145,7 @@ default_rule_c = ctrl.Rule(antecedent=(~headache['none'] & ~headache['mild'] & ~
                            consequent=urgency['delayed'], label='default headache')
                            
 """
+
 # Get user input for age, temperature, and severity of headache
 while True:
     age = int(input("Enter Age (0-130): "))
@@ -157,7 +169,7 @@ while True:
 
 # Creating the Control System
 urgency_ctrl = ctrl.ControlSystem([rule0, rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9,
-                                   rule10, rule11])
+                                   rule10, rule11, rule12, rule13])
 urgency_simulation = ctrl.ControlSystemSimulation(urgency_ctrl)
 
 # Providing inputs to the system
@@ -179,13 +191,13 @@ else:
 print(f"Age: {age}")
 print(f"Temperate /°C: {temperature}")
 print(f"Severity of Headache: {headache}")
-
 print(f"Output Urgency: {urgency_simulation.output['urgency']}")
 print(f"Urgency Level: {urgency_level}")
 
 urgency.view(sim=urgency_simulation)
 
-""" Control Surface 
+""" Control Surface
+
 def compute_urgency(age_value, temp_values, headache_values):
     # Initialize the array for urgency values
     urgency_output = np.zeros((len(headache_values), len(temp_values)))
