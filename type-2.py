@@ -18,9 +18,21 @@ from juzzyPython.type1.sets.T1MF_Trapezoidal import T1MF_Trapezoidal
 
 plot = Plot()
 
+headache_imf = IntervalT2MF_Gauangle("inputmf",
+    T1MF_Gauangle("inputumf", 2, 3, 4),
+    T1MF_Gauangle("inputlmf", 2, 3, 4))
+
+temp_imf = IntervalT2MF_Trapezoidal("inputmf",
+    T1MF_Trapezoidal("inputumf", [0, 0, 1, 1]),
+    T1MF_Trapezoidal("inputumf", [0, 0, 1, 1]))
+
+age_imf = IntervalT2MF_Trapezoidal("inputmf",
+    T1MF_Trapezoidal("inputumf", [0, 0, 0, 0]),
+    T1MF_Trapezoidal("inputlmf", [0, 0, 0, 0]))
+
 # Define Input and Output objects
-temperature_input = Input('Temperature', Tuple(0, 45))
-headache_input = Input('Headache', Tuple(0, 10))
+temperature_input = Input('Temperature', Tuple(0, 45), inputMF=temp_imf)
+headache_input = Input('Headache', Tuple(0, 10), inputMF=headache_imf)
 age_input = Input('Age', Tuple(0, 130))
 urgency_output = Output('Urgency', Tuple(0, 100))
 
@@ -142,20 +154,20 @@ urgency_urgent_consequent = IT2_Consequent(urgency_urgent, urgency_output, 'urge
 urgency_immediate_consequent = IT2_Consequent(urgency_immediate, urgency_output, 'immediate')
 
 # Define rules
-# rule1g = IT2_Rule([temperature_low_antecedent, headache_mild_antecedent], consequent=urgency_delayed_consequent)
-# rule2g = IT2_Rule([temperature_low_antecedent, headache_moderate_antecedent], consequent=urgency_urgent_consequent)
-# rule3g = IT2_Rule([temperature_low_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
-# rule31g = IT2_Rule([temperature_low_antecedent, headache_none_antecedent], consequent=urgency_delayed_consequent)
-# rule41g = IT2_Rule([temperature_normal_antecedent, headache_none_antecedent], consequent=urgency_none_consequent)
-# rule4g = IT2_Rule([temperature_normal_antecedent, headache_mild_antecedent], consequent=urgency_none_consequent)
-# rule5g = IT2_Rule([temperature_normal_antecedent, headache_moderate_antecedent], consequent=urgency_delayed_consequent)
-# rule6g = IT2_Rule([temperature_normal_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
-# rule71g = IT2_Rule([temperature_high_antecedent, headache_none_antecedent], consequent=urgency_delayed_consequent)
-# rule7g = IT2_Rule([temperature_high_antecedent, headache_mild_antecedent], consequent=urgency_delayed_consequent)
-# rule8g = IT2_Rule([temperature_high_antecedent, headache_moderate_antecedent], consequent=urgency_urgent_consequent)
-# rule9g = IT2_Rule([temperature_high_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
+rule1g = IT2_Rule([temperature_low_antecedent, headache_mild_antecedent], consequent=urgency_delayed_consequent)
+rule2g = IT2_Rule([temperature_low_antecedent, headache_moderate_antecedent], consequent=urgency_urgent_consequent)
+rule3g = IT2_Rule([temperature_low_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
+rule31g = IT2_Rule([temperature_low_antecedent, headache_none_antecedent], consequent=urgency_delayed_consequent)
+rule41g = IT2_Rule([temperature_normal_antecedent, headache_none_antecedent], consequent=urgency_none_consequent)
+rule4g = IT2_Rule([temperature_normal_antecedent, headache_mild_antecedent], consequent=urgency_none_consequent)
+rule5g = IT2_Rule([temperature_normal_antecedent, headache_moderate_antecedent], consequent=urgency_delayed_consequent)
+rule6g = IT2_Rule([temperature_normal_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
+rule71g = IT2_Rule([temperature_high_antecedent, headache_none_antecedent], consequent=urgency_delayed_consequent)
+rule7g = IT2_Rule([temperature_high_antecedent, headache_mild_antecedent], consequent=urgency_delayed_consequent)
+rule8g = IT2_Rule([temperature_high_antecedent, headache_moderate_antecedent], consequent=urgency_urgent_consequent)
+rule9g = IT2_Rule([temperature_high_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
 
-# rule9g = IT2_Rule([temperature_high_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
+rule9g = IT2_Rule([temperature_high_antecedent, headache_severe_antecedent], consequent=urgency_immediate_consequent)
 
 # rule10g = IT2_Rule([temperature_very_high_antecedent], consequent=urgency_immediate_consequent)
 # rule11g = IT2_Rule([temperature_very_low_antecedent], consequent=urgency_immediate_consequent)
@@ -166,7 +178,7 @@ rule0g_vhigh = IT2_Rule([temperature_very_high_antecedent], consequent=urgency_i
 rule0g_vlow = IT2_Rule([temperature_very_low_antecedent], consequent=urgency_immediate_consequent)
 rule1g = IT2_Rule([headache_severe_antecedent], consequent=urgency_immediate_consequent)
 
-# No Hospital Needed (Age-Specific) - Adults
+# # No Hospital Needed (Age-Specific) - Adults
 rule2g = IT2_Rule([age_adult_antecedent, temperature_normal_antecedent], consequent=urgency_none_consequent)
 
 # Elderly with various temperature conditions
@@ -255,10 +267,27 @@ rulebase.addRule(rule12g1)
 rulebase.addRule(rule13g_adult)
 rulebase.addRule(rule13g_young)
 rulebase.addRule(rule13g_adolescent)
+# Adding rules to the rulebase
+rulebase.addRule(rule1g)
+rulebase.addRule(rule2g)
+rulebase.addRule(rule3g)
+rulebase.addRule(rule31g)
+rulebase.addRule(rule41g)
+rulebase.addRule(rule4g)
+rulebase.addRule(rule5g)
+rulebase.addRule(rule6g)
+rulebase.addRule(rule71g)
+rulebase.addRule(rule7g)
+rulebase.addRule(rule8g)
+rulebase.addRule(rule9g)
+
 rulebase.addRule(rule14g)
 rulebase.addRule(rule0g_vhigh)
 rulebase.addRule(rule0g_vlow)
 rulebase.addRule(rule1g)
+rulebase.addRule(rule3g)
+rulebase.addRule(rule6g)
+rulebase.addRule(rule9g)
 
 print(rulebase.toString())
 
@@ -302,7 +331,7 @@ def getControlSurfaceData(useCentroidDefuzz,input1Discs,input2Discs,unit = False
         for i in range(input1Discs):
             x.append(temp_range.getLeft() + i*incrX)
         for i in range(input2Discs):
-            y.append(i*incrY)
+            y.append(headache_input.getDomain().getLeft()+i*incrY)
         
         for x_ in range(input1Discs):
             temperature_input.setInput(x[x_])
@@ -334,6 +363,8 @@ def output_single(age, headache, temperature, red_t = 0):
     age_input.setInput(age)
     headache_input.setInput(headache)
     temperature_input.setInput(temperature)
+
+
     urgency = rulebase.evaluate(red_t).get(urgency_output)
     
     return urgency 
@@ -350,7 +381,7 @@ def output_single(age, headache, temperature, red_t = 0):
 #     u = rulebase.evaluate(0).get(urgency_output)
 #     return u
 
-def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_lower, temp_upper, red_t = 0):
+def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_lower, temp_upper, red_t = 1):
     # Validate input parameters
     if any(param < 0 for param in [age_lower, age_upper, headache_lower, headache_upper, temp_lower, temp_upper]):
         raise ValueError("Input parameters cannot be negative")
@@ -376,8 +407,9 @@ def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_l
 # plotMFs("Headache Membership Functions", [headache_none, headache_mild, headache_moderate, headache_severe], 100)
 # plotMFs("Urgency Membership Functions", [urgency_none, urgency_delayed, urgency_urgent, urgency_immediate], 100)
 
-age_input.setInput(10)
-getControlSurfaceData(False, 100, 100)
-plot.show()
-print(f"Urgency interval: {output_interval(30, 30, 2, 4, 36, 40)}")
-print(f"Urgency single: {output_single(30, 5, 36.5)}")
+
+# age_input.setInput(30)
+# getControlSurfaceData(False, 100, 100)
+# plot.show()
+print(f"Urgency interval: {output_interval(80, 80, 0, 1, 35, 36, 1)}")
+# print(f"Urgency single: {output_single(30, 9, 36.5)}")
