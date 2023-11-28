@@ -1,6 +1,8 @@
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 """
 Final Coursework for COMP4033 by Abinaya Maruthalingam and Rostislav Shepel
@@ -50,9 +52,7 @@ urgency.view()
 
 """ Define Fuzzy Ruleset """
 
-# Solely based on Temperature
-
-"""Immediate Care (Standard Rule)"""
+"""Immediate Care (Standard Rules)"""
 # Temperature = very high or very low - indicative of high-grade fever or hypothermia
 rule0 = ctrl.Rule(antecedent=(temperature['very high'] | temperature['very low']),
                   consequent=urgency['immediate'], label='extreme temperature - immediate')
@@ -63,8 +63,7 @@ rule1 = ctrl.Rule(antecedent=(headache['severe']),
 """No Hospital Needed (Age-Specific)"""
 # Adults
 rule2 = ctrl.Rule(antecedent=(age['adult'] &
-                              temperature['normal'] &
-                              (headache['none'] | headache['mild'] | headache['moderate'])),
+                              temperature['normal']),
                   consequent=urgency['none'], label='adult normal - none')
 # Elderly
 rule3 = ctrl.Rule(antecedent=(age['elderly'] &
@@ -74,8 +73,7 @@ rule3 = ctrl.Rule(antecedent=(age['elderly'] &
                   consequent=urgency['none'], label='elderly normal - none')
 # Young and Adolescent Children
 rule4 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
-                              (temperature['normal'] | temperature['slightly high'] & temperature['slightly low']) &
-                              (headache['none'] | headache['mild'])),
+                              (temperature['normal'] | temperature['slightly high'] & temperature['slightly low'])),
                   consequent=urgency['none'], label='children normal - none')
 
 """Delayed Admittance - Minor Urgency (Age-Specific)"""
@@ -89,8 +87,7 @@ rule5 = ctrl.Rule(antecedent=(age['elderly'] &
 # Adults with delayed admittance - temp: low: possible hypothermia, high: possible fever, with a headache.
 # Can be remedied at home in the worst case too (moderate headache and high temp)
 rule6 = ctrl.Rule(antecedent=(age['adult'] &
-                              (temperature['slightly low'] | temperature['slightly high'] | temperature['high']) &
-                              (headache['none'] | headache['mild'] | headache['moderate'])),
+                              (temperature['slightly low'] | temperature['slightly high'] | temperature['high'])),
                   consequent=urgency['delayed'], label='adult slight temp - delayed')
 
 # Children with slight fever
@@ -107,17 +104,36 @@ rule8 = ctrl.Rule(antecedent=((age['young'] | age['adolescent']) &
                   consequent=urgency['urgent'], label='children fever - urgent')
 
 # Elderly - Outside the temperature range
-rule10 = ctrl.Rule(antecedent=(age['elderly'] &
-                               temperature['high'] &
-                               (headache['none'] | headache['mild'])),
-                   consequent=urgency['urgent'], label='elderly high temp - urgent')
+rule9 = ctrl.Rule(antecedent=(age['elderly'] &
+                              temperature['high'] &
+                              (headache['none'] | headache['mild'])),
+                  consequent=urgency['urgent'], label='elderly high temp - urgent')
 
 """Immediate Admittance"""
+rule10 = ctrl.Rule(antecedent=((age['adult'] | age['young'] | age['adolescent']) &
+                               temperature['low']),
+                   consequent=urgency['immediate'], label='children + adult hypothermia - immediate')
+
 rule11 = ctrl.Rule(antecedent=(age['elderly'] &
                                temperature['high'] &
                                headache['moderate']),
                    consequent=urgency['immediate'], label='elderly high temp and moderate headache - immediate')
+""" Default Rules 
+Used to debug control surface code
 
+default_rule_a = ctrl.Rule(antecedent=(~age['young'] & ~age['adolescent'] & ~age['adult'] & ~age['elderly']),
+                           consequent=urgency['delayed'], label='default age')
+
+default_rule_b = ctrl.Rule(antecedent=(~temperature['very low'] & ~temperature['low'] & ~temperature['slightly low']
+                                       & ~temperature['normal'] & ~temperature['slightly high'] &
+                                       ~temperature['high'] & ~temperature['very high']),
+                           consequent=urgency['delayed'], label='default temperature')
+
+default_rule_c = ctrl.Rule(antecedent=(~headache['none'] & ~headache['mild'] & ~headache['moderate'] &
+                                       ~headache['severe']),
+                           consequent=urgency['delayed'], label='default headache')
+                           
+"""
 # Get user input for age, temperature, and severity of headache
 while True:
     age = int(input("Enter Age (0-130): "))
@@ -140,7 +156,8 @@ while True:
         print("Severity of headache should be between 0 and 10. Please try again.")
 
 # Creating the Control System
-urgency_ctrl = ctrl.ControlSystem(rules=[rule0, rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8])
+urgency_ctrl = ctrl.ControlSystem([rule0, rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9,
+                                   rule10, rule11])
 urgency_simulation = ctrl.ControlSystemSimulation(urgency_ctrl)
 
 # Providing inputs to the system
@@ -168,4 +185,48 @@ print(f"Urgency Level: {urgency_level}")
 
 urgency.view(sim=urgency_simulation)
 
-# TODO: Control Surface
+""" Control Surface 
+def compute_urgency(age_value, temp_values, headache_values):
+    # Initialize the array for urgency values
+    urgency_output = np.zeros((len(headache_values), len(temp_values)))
+
+    # Loop over the grid and compute urgency
+    for i, headache_val in enumerate(headache_values):
+        for j, temp in enumerate(temp_values):
+            urgency_simulation.input['age'] = age_value
+            urgency_simulation.input['temperature'] = temp
+            urgency_simulation.input['headache'] = headache_val
+            urgency_simulation.compute()
+            urgency_output[i, j] = urgency_simulation.output['urgency']
+
+    return urgency_output
+
+
+# Generate the control surface plot for specific age values
+def plot_control_surface(age_value):
+    # Create a meshgrid for temperature and headache values
+    temp_values = np.arange(34, 43, 0.5)
+    headache_values = np.arange(0, 11, 1)
+    temp, ache = np.meshgrid(temp_values, headache_values)
+
+    # Compute the urgency values
+    urgency = compute_urgency(age_value, temp_values, headache_values)
+
+    # Plotting
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    surf = ax.plot_surface(temp, ache, urgency, cmap='viridis')
+    ax.set_xlabel('Temperature (°C)')
+    ax.set_ylabel('Headache (0-10)')
+    ax.set_zlabel('Urgency (0-100)')
+    ax.set_title(f'Urgency Control Surface for Age = {age_value}')
+    plt.colorbar(surf)
+    plt.show()
+
+
+# Call the plot function for ages 15, 40, and 70
+plot_control_surface(15)
+plot_control_surface(40)
+plot_control_surface(70)
+
+"""
