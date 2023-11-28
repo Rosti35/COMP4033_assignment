@@ -23,7 +23,7 @@ age['adolescent'] = fuzz.trapmf(age.universe, [10, 10, 17, 19])
 age['adult'] = fuzz.trapmf(age.universe, [17, 19, 60, 65])
 age['elderly'] = fuzz.trapmf(age.universe, [60, 65, 130, 130])
 
-# age.view()
+age.view()
 
 temperature['very low'] = fuzz.trapmf(temperature.universe, [20.0, 20.0, 34.3, 34.3])
 temperature['low'] = fuzz.trapmf(temperature.universe, [34.3, 34.4, 35.4, 35.4])
@@ -33,21 +33,21 @@ temperature['slightly high'] = fuzz.trapmf(temperature.universe, [37.2, 37.3, 38
 temperature['high'] = fuzz.trapmf(temperature.universe, [38.0, 38.1, 39.9, 39.9])
 temperature['very high'] = fuzz.trapmf(temperature.universe, [39.9, 40, 50, 50])
 
-# temperature.view()
+temperature.view()
 
 headache['none'] = fuzz.trimf(headache.universe, [0, 0, 0.5])
 headache['mild'] = fuzz.trimf(headache.universe, [1, 3, 3])
 headache['moderate'] = fuzz.trimf(headache.universe, [4, 6, 6])
 headache['severe'] = fuzz.trapmf(headache.universe, [7, 7, 10, 10])
 
-# headache.view()
+headache.view()
 
 urgency['none'] = fuzz.trapmf(urgency.universe, [0, 0, 5, 10])
 urgency['delayed'] = fuzz.gaussmf(urgency.universe, 25, 10)
 urgency['urgent'] = fuzz.gaussmf(urgency.universe, 50, 10)
 urgency['immediate'] = fuzz.trapmf(urgency.universe, [65, 75, 100, 100])
 
-# urgency.view()
+urgency.view()
 # print(urgency.defuzzify_method)
 
 """ Define Fuzzy Ruleset """
@@ -134,23 +134,6 @@ rule14 = ctrl.Rule(antecedent=(age['elderly'] &
                                headache['moderate']),
                    consequent=urgency['immediate'], label='elderly high temp and moderate headache - immediate')
 
-""" Default Rules - Not Used
-Used to debug control surface code
-
-default_rule_a = ctrl.Rule(antecedent=(~age['young'] & ~age['adolescent'] & ~age['adult'] & ~age['elderly']),
-                           consequent=urgency['delayed'], label='default age')
-
-default_rule_b = ctrl.Rule(antecedent=(~temperature['very low'] & ~temperature['low'] & ~temperature['slightly low']
-                                       & ~temperature['normal'] & ~temperature['slightly high'] &
-                                       ~temperature['high'] & ~temperature['very high']),
-                           consequent=urgency['delayed'], label='default temperature')
-
-default_rule_c = ctrl.Rule(antecedent=(~headache['none'] & ~headache['mild'] & ~headache['moderate'] &
-                                       ~headache['severe']),
-                           consequent=urgency['delayed'], label='default headache')
-                           
-"""
-
 # Get user input for age, temperature, and severity of headache
 while True:
     age = int(input("Enter Age (0-130): "))
@@ -166,7 +149,7 @@ while True:
     else:
         print("Temperature should be between 20 and 50. Please try again.")
 while True:
-    headache = int(input("Enter severity of headache (0 - 10, where 0 is None and 10 is extremely severe): "))
+    headache = int(input("Enter severity of headache (0 - 10, where 0 is none and 10 is extremely severe): "))
     if 0 <= headache <= 10:
         break
     else:
@@ -200,50 +183,3 @@ print(f"Output Urgency: {urgency_simulation.output['urgency']}")
 print(f"Urgency Level: {urgency_level}")
 
 urgency.view(sim=urgency_simulation)
-
-""" Control Surface
-
-def compute_urgency(age_value, temp_values, headache_values):
-    # Initialize the array for urgency values
-    urgency_output = np.zeros((len(headache_values), len(temp_values)))
-
-    # Loop over the grid and compute urgency
-    for i, headache_val in enumerate(headache_values):
-        for j, temp in enumerate(temp_values):
-            urgency_simulation.input['age'] = age_value
-            urgency_simulation.input['temperature'] = temp
-            urgency_simulation.input['headache'] = headache_val
-            urgency_simulation.compute()
-            urgency_output[i, j] = urgency_simulation.output['urgency']
-
-    return urgency_output
-
-
-# Generate the control surface plot for specific age values
-def plot_control_surface(age_value):
-    # Create a meshgrid for temperature and headache values
-    temp_values = np.arange(34, 43, 0.5)
-    headache_values = np.arange(0, 11, 1)
-    temp, ache = np.meshgrid(temp_values, headache_values)
-
-    # Compute the urgency values
-    urgency = compute_urgency(age_value, temp_values, headache_values)
-
-    # Plotting
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(temp, ache, urgency, cmap='viridis')
-    ax.set_xlabel('Temperature (°C)')
-    ax.set_ylabel('Headache (0-10)')
-    ax.set_zlabel('Urgency (0-100)')
-    ax.set_title(f'Urgency Control Surface for Age = {age_value}')
-    plt.colorbar(surf)
-    plt.show()
-
-
-# Call the plot function for ages 15, 40, and 70
-plot_control_surface(15)
-plot_control_surface(40)
-plot_control_surface(70)
-
-"""
