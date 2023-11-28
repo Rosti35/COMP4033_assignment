@@ -23,7 +23,7 @@ age['adolescent'] = fuzz.trapmf(age.universe, [10, 10, 17, 19])
 age['adult'] = fuzz.trapmf(age.universe, [17, 19, 60, 65])
 age['elderly'] = fuzz.trapmf(age.universe, [60, 65, 130, 130])
 
-age.view()
+# age.view()
 
 temperature['very low'] = fuzz.trapmf(temperature.universe, [20.0, 20.0, 34.3, 34.3])
 temperature['low'] = fuzz.trapmf(temperature.universe, [34.3, 34.4, 35.4, 35.4])
@@ -33,21 +33,21 @@ temperature['slightly high'] = fuzz.trapmf(temperature.universe, [37.2, 37.3, 38
 temperature['high'] = fuzz.trapmf(temperature.universe, [38.0, 38.1, 39.9, 39.9])
 temperature['very high'] = fuzz.trapmf(temperature.universe, [39.9, 40, 50, 50])
 
-temperature.view()
+# temperature.view()
 
 headache['none'] = fuzz.trimf(headache.universe, [0, 0, 0.5])
 headache['mild'] = fuzz.trimf(headache.universe, [1, 3, 3])
 headache['moderate'] = fuzz.trimf(headache.universe, [4, 6, 6])
 headache['severe'] = fuzz.trapmf(headache.universe, [7, 7, 10, 10])
 
-headache.view()
+# headache.view()
 
 urgency['none'] = fuzz.trapmf(urgency.universe, [0, 0, 5, 10])
 urgency['delayed'] = fuzz.gaussmf(urgency.universe, 25, 10)
 urgency['urgent'] = fuzz.gaussmf(urgency.universe, 50, 10)
 urgency['immediate'] = fuzz.trapmf(urgency.universe, [65, 75, 100, 100])
 
-urgency.view()
+# urgency.view()
 # print(urgency.defuzzify_method)
 
 """ Define Fuzzy Ruleset """
