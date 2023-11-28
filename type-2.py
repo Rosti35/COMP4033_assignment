@@ -17,9 +17,9 @@ from juzzyPython.generic.Output import Output
 from juzzyPython.type1.sets.T1MF_Trapezoidal import T1MF_Trapezoidal
 
 """
-Final Coursework for COMP4033 by Abinaya Maruthalingam and Rostislav Shepel
+Final Coursework for COMP4033 by Rostislav Shepel
 
-To get output for the ranges you need to input data in the main function
+To get output for the ranges you need to input data in the main function and then run type-2.py file
 """
 
 plot = Plot()
