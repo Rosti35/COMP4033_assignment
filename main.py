@@ -38,7 +38,7 @@ temperature.view()
 headache['none'] = fuzz.trimf(headache.universe, [0, 0, 0.5])
 headache['mild'] = fuzz.trimf(headache.universe, [1, 3, 3])
 headache['moderate'] = fuzz.trimf(headache.universe, [4, 6, 6])
-headache['severe'] = fuzz.trimf(headache.universe, [7, 10, 10])
+headache['severe'] = fuzz.trapmf(headache.universe, [7, 7, 10, 10])
 
 headache.view()
 
