@@ -1,5 +1,5 @@
 # Import necessary libraries
-import numpy as np
+
 import math
 from juzzyPython.generic.Tuple import Tuple
 from juzzyPython.generic.Plot import Plot
@@ -16,23 +16,17 @@ from juzzyPython.generic.Input import Input
 from juzzyPython.generic.Output import Output
 from juzzyPython.type1.sets.T1MF_Trapezoidal import T1MF_Trapezoidal
 
+"""
+Final Coursework for COMP4033 by Abinaya Maruthalingam and Rostislav Shepel
+
+To get output for the ranges you need to input data in the main function
+"""
+
 plot = Plot()
 
-headache_imf = IntervalT2MF_Gauangle("inputmf",
-    T1MF_Gauangle("inputumf", 2, 3, 4),
-    T1MF_Gauangle("inputlmf", 2, 3, 4))
-
-temp_imf = IntervalT2MF_Trapezoidal("inputmf",
-    T1MF_Trapezoidal("inputumf", [0, 0, 1, 1]),
-    T1MF_Trapezoidal("inputumf", [0, 0, 1, 1]))
-
-age_imf = IntervalT2MF_Trapezoidal("inputmf",
-    T1MF_Trapezoidal("inputumf", [0, 0, 0, 0]),
-    T1MF_Trapezoidal("inputlmf", [0, 0, 0, 0]))
-
 # Define Input and Output objects
-temperature_input = Input('Temperature', Tuple(0, 45), inputMF=temp_imf)
-headache_input = Input('Headache', Tuple(0, 10), inputMF=headache_imf)
+temperature_input = Input('Temperature', Tuple(0, 45))
+headache_input = Input('Headache', Tuple(0, 10))
 age_input = Input('Age', Tuple(0, 130))
 urgency_output = Output('Urgency', Tuple(0, 100))
 
@@ -331,7 +325,7 @@ def getControlSurfaceData(useCentroidDefuzz,input1Discs,input2Discs,unit = False
         for i in range(input1Discs):
             x.append(temp_range.getLeft() + i*incrX)
         for i in range(input2Discs):
-            y.append(headache_input.getDomain().getLeft()+i*incrY)
+            y.append(i*incrY)
         
         for x_ in range(input1Discs):
             temperature_input.setInput(x[x_])
@@ -369,17 +363,6 @@ def output_single(age, headache, temperature, red_t = 0):
     
     return urgency 
 
-# def get1(age_l, age_u, headache_l, headache_u, temp_l, temp_u):
-#     if age_l == age_u:
-#         (age_l, age_u) = (age_l - 0.5, age_l + 0.5)
-
-#     age_input.setInputMF(T1MF_Trapezoidal("inputmf", [age_l, age_l, age_u, age_u]))
-#     headache_input.setInputMF(T1MF_Gauangle("inputmf", headache_l, (headache_l + headache_u) / 2, headache_u))
-#     temperature_input.setInputMF(T1MF_Gauangle("inputmf", temp_l, (temp_l + temp_u)/2, temp_u))
-
-#     #(peak, peak_x) = reduction_lom(rulebase)
-#     u = rulebase.evaluate(0).get(urgency_output)
-#     return u
 
 def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_lower, temp_upper, red_t = 1):
     # Validate input parameters
@@ -389,7 +372,7 @@ def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_l
     
     age_input.setInputMF(T1MF_Trapezoidal("AgeMF", [age_lower, age_lower, age_upper, age_upper]))
     headache_input.setInputMF(T1MF_Gauangle("HeadacheMF", headache_lower, (headache_lower + headache_upper) / 2, headache_upper))
-    temperature_input.setInputMF(T1MF_Gauangle("inputmf", temp_lower, (temp_lower + temp_upper)/2, temp_upper))
+    temperature_input.setInputMF(T1MF_Gauangle("TempMF", temp_lower, (temp_lower + temp_upper)/2, temp_upper))
 
     # Evaluate the rulebase
     try:
@@ -401,15 +384,19 @@ def output_interval(age_lower, age_upper, headache_lower, headache_upper, temp_l
     return urgency_value  # defuzz(urgency_value)
 
 
+def main():
+    # plotMFs("Temperature Membership Functions", [temperature_very_low, temperature_low, temperature_normal, temperature_high,temperature_very_high], 43)
+    # plotMFs("Age Membership Functions", [age_young, age_adolescent, age_adult, age_elderly], 130)
+    # plotMFs("Headache Membership Functions", [headache_none, headache_mild, headache_moderate, headache_severe], 100)
+    # plotMFs("Urgency Membership Functions", [urgency_none, urgency_delayed, urgency_urgent, urgency_immediate], 100)
 
-# plotMFs("Temperature Membership Functions", [temperature_very_low, temperature_low, temperature_normal, temperature_high,temperature_very_high], 43)
-# plotMFs("Age Membership Functions", [age_young, age_adolescent, age_adult, age_elderly], 130)
-# plotMFs("Headache Membership Functions", [headache_none, headache_mild, headache_moderate, headache_severe], 100)
-# plotMFs("Urgency Membership Functions", [urgency_none, urgency_delayed, urgency_urgent, urgency_immediate], 100)
+
+    # age_input.setInput(30)
+    # getControlSurfaceData(False, 100, 100)
+    # plot.show()
+    print(f"Urgency interval: {output_interval(80, 80, 0, 1, 35, 36, 1)}")
+    # print(f"Urgency single: {output_single(30, 9, 36.5)}")
 
 
-# age_input.setInput(30)
-# getControlSurfaceData(False, 100, 100)
-# plot.show()
-print(f"Urgency interval: {output_interval(80, 80, 0, 1, 35, 36, 1)}")
-# print(f"Urgency single: {output_single(30, 9, 36.5)}")
+if __name__ == "__main__":
+    main()
